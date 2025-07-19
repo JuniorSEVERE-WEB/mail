@@ -77,7 +77,7 @@ function load_mailbox(mailbox) {
     // fe yon reket pou rekipere email         bwat 
     
   fetch(`/emails/${mailbox}`)
-    .then(response =>          response.json())
+    .then(response =>       response.json())
     .then(emails => {
       
 
@@ -98,6 +98,38 @@ function load_mailbox(mailbox) {
     });
 }
 
+
+function load_mailbox(mailbox) {
+  
+
+  document.querySelector('#emails-view').style.display = 'block';
+  document.querySelector('#compose-view').style.display = 'none';
+
+  
+
+
+  document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
+
+  // Requête GET vers l'API pour récupérer les derniers emails de la boîte
+  fetch(`/emails/${mailbox}`)
+    .then(response => response.json())
+    .then(emails => {
+      
+
+
+      emails.forEach(email => {
+        const element = document.createElement('div');
+        element.className = 'email-item';
+        element.innerHTML = `
+          <strong>${email.sender}</strong> - ${email.subject}
+          <span style="float:right;">${email.timestamp}</span>
+        `;
+        document.querySelector('#emails-view').appendChild(element);
+      });
+
+      
+    });
+}
 
 
 
