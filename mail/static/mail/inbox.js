@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  
+
   // By default, load the inbox
   load_mailbox('inbox');
 });
@@ -72,4 +72,32 @@ function load_mailbox(mailbox) {
 
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
+
+
+    // fe yon reket pou rekipere email         bwat 
+    
+  fetch(`/emails/${mailbox}`)
+    .then(response =>          response.json())
+    .then(emails => {
+      
+
+      //afiche chak email nan bwat lan
+      emails.forEach(email => {
+
+        
+        const element = document.createElement('div');
+        element.className = 'email-item';
+        element.innerHTML = `
+          <strong>${email.sender}</strong> - ${email.subject}
+          <span style="float:right;">${email.timestamp}</span>
+        `;
+        
+        // ou ka ajoute lot enfomasyon la, klike la pou we
+        document.querySelector('#emails-view').appendChild(element);
+      });
+    });
 }
+
+
+
+
