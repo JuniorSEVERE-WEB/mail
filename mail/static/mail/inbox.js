@@ -110,7 +110,8 @@ function load_mailbox(mailbox) {
 
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
-  // Requête GET vers l'API pour récupérer les derniers emails de la boîte
+  
+  //reket ve api pou jwenn denye email bwat lan
   fetch(`/emails/${mailbox}`)
     .then(response => response.json())
 
@@ -126,10 +127,14 @@ function load_mailbox(mailbox) {
         element.style.padding = '10px';
         element.style.margin = '5px 0';
         element.style.borderRadius = '5px';
+
+
         element.style.background = email.read ? '#f0f0f0' : '#fff';
 
         element.innerHTML = `
           <strong>De : ${email.sender}</strong><br>
+
+
           <span>Sujet : ${email.subject}</span><br>
           <span style="float:right;">${email.timestamp}</span>
         `;
