@@ -113,6 +113,8 @@ function load_mailbox(mailbox) {
   // Requête GET vers l'API pour récupérer les derniers emails de la boîte
   fetch(`/emails/${mailbox}`)
     .then(response => response.json())
+
+    
     .then(emails => {
       
 
@@ -120,14 +122,22 @@ function load_mailbox(mailbox) {
       emails.forEach(email => {
         const element = document.createElement('div');
         element.className = 'email-item';
+        element.style.border = '1px solid #ccc';
+        element.style.padding = '10px';
+        element.style.margin = '5px 0';
+        element.style.borderRadius = '5px';
+        element.style.background = email.read ? '#f0f0f0' : '#fff';
+
         element.innerHTML = `
-          <strong>${email.sender}</strong> - ${email.subject}
+          <strong>De : ${email.sender}</strong><br>
+          <span>Sujet : ${email.subject}</span><br>
           <span style="float:right;">${email.timestamp}</span>
         `;
+
         document.querySelector('#emails-view').appendChild(element);
       });
 
-      
+
     });
 }
 
