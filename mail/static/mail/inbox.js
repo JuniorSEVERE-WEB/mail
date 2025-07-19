@@ -57,6 +57,7 @@ function compose_email() {
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
+  document.querySelector('#email-detail-view').style.display = 'none';
 
   // Clear out composition fields
   document.querySelector('#compose-recipients').value = '';
@@ -69,7 +70,8 @@ function load_mailbox(mailbox) {
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
-
+  document.querySelector('#email-detail-view').style.display = 'none'; 
+  
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
@@ -106,9 +108,9 @@ function load_mailbox(mailbox) {
   document.querySelector('#compose-view').style.display = 'none';
 
   
+   document.querySelector('#email-detail-view').style.display = 'block';
 
-
-  document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
+ // document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
   
   //reket ve api pou jwenn denye email bwat lan
@@ -141,6 +143,12 @@ function load_mailbox(mailbox) {
 
 
         element.addEventListener('click',    function() {
+
+
+          document.querySelector('#emails-view').style.display =      'none';
+              document.querySelector('#compose-view').style.display = 'none';
+          
+          document.querySelector('#email-detail-view').style.display = 'block';
         fetch(`/emails/${email.id}`)
 
 
@@ -149,7 +157,7 @@ function load_mailbox(mailbox) {
             
 
             //Afiche vue pou email lan
-            document.querySelector('#emails-view').innerHTML = `
+            document.querySelector('#email-detail-view').innerHTML = `
               <div style="border:1px solid #ccc;            padding:15px; border-radius:5px;">
                 <strong>De :</strong> ${email_detail.sender}<br>
 
