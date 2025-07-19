@@ -6,6 +6,48 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
   document.querySelector('#compose').addEventListener('click', compose_email);
 
+
+   // I add un gestionnaire d'evenement pour l'envoi du mail
+  document.querySelector('#compose-form').addEventListener('submit',       function(event)       {
+    event.preventDefault();
+
+    //      mwen rekipere vale fomile                    a 
+    const recipients =          document.querySelector('#compose-recipients').value;
+
+
+    const subject = document.querySelector('#compose-subject').value;
+    const body = document.querySelector('#compose-body').value;
+
+    // Envoyer la requête POST
+    fetch('/emails', {
+      method: 'POST',
+
+      body: JSON.stringify({
+        recipients: recipients,
+        subject: subject,
+        body:      body
+      }),
+
+
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+
+
+    .then(response =>   response.json())
+    .then(result => {
+      // Afficher le résultat ou recharger la boîte de réception
+      if (result.message) {
+        load_mailbox('sent');
+
+      } else if (result.error) {
+        alert(result.error);
+      }
+    });
+  });
+
+  
   // By default, load the inbox
   load_mailbox('inbox');
 });
