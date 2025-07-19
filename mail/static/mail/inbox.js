@@ -129,6 +129,7 @@ function load_mailbox(mailbox) {
         element.style.padding = '10px';
         element.style.margin = '5px 0';
         element.style.borderRadius = '5px';
+        element.style.background = email.read ? '#f0f0f0' : '#fff';
 
 
         element.style.background = email.read ? '#f0f0f0' : '#fff';
