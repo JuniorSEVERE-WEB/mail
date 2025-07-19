@@ -139,6 +139,31 @@ function load_mailbox(mailbox) {
           <span style="float:right;">${email.timestamp}</span>
         `;
 
+
+        element.addEventListener('click',    function() {
+        fetch(`/emails/${email.id}`)
+
+
+          .then(response => response.json())
+          .then(email_detail => {
+            
+
+            //Afiche vue pou email lan
+            document.querySelector('#emails-view').innerHTML = `
+              <div style="border:1px solid #ccc;            padding:15px; border-radius:5px;">
+                <strong>De :</strong> ${email_detail.sender}<br>
+
+                <strong>À :</strong>     ${email_detail.recipients.join(', ')}<br>
+                <strong>Sujet :</strong> ${email_detail.subject}<br>
+
+                <strong>Date :</strong> ${email_detail.timestamp}   <br>
+                <hr>
+                <p>${email_detail.body}</p>
+              </div>
+            `;
+          });
+        });
+
         document.querySelector('#emails-view').appendChild(element);
       });
 
