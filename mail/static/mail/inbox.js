@@ -145,6 +145,19 @@ function load_mailbox(mailbox) {
 
         element.addEventListener('click',    function() {
 
+          if (mailbox !== 'sent') {
+              const btn = document.querySelector('#archive-btn') || document.querySelector('#unarchive-btn');
+              if (btn) {
+                btn.addEventListener('click', function() {
+                  fetch(`/emails/${email_detail.id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ archived: !email_detail.archived })
+                  })
+                  .then(() => load_mailbox('inbox'));
+                });
+              }
+            }
+
           fetch(`/emails/${email.id}`, {
           method: 'PUT',
           body: JSON.stringify({ read: true })
