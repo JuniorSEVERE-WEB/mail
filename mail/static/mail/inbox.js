@@ -108,9 +108,9 @@ function load_mailbox(mailbox) {
   document.querySelector('#compose-view').style.display = 'none';
 
   
-   document.querySelector('#email-detail-view').style.display = 'block';
+   document.querySelector('#email-detail-view').style.display = 'none';
 
- // document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
+  document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
   
   //reket ve api pou jwenn denye email bwat lan
@@ -129,7 +129,7 @@ function load_mailbox(mailbox) {
         element.style.padding = '10px';
         element.style.margin = '5px 0';
         element.style.borderRadius = '5px';
-        element.style.background = email.read ? '#f0f0f0' : '#fff';
+        
 
 
         element.style.background = email.read ? '#f0f0f0' : '#fff';
@@ -145,6 +145,11 @@ function load_mailbox(mailbox) {
 
         element.addEventListener('click',    function() {
 
+          fetch(`/emails/${email.id}`, {
+          method: 'PUT',
+          body: JSON.stringify({ read: true })
+          });
+
 
           document.querySelector('#emails-view').style.display =      'none';
               document.querySelector('#compose-view').style.display = 'none';
@@ -155,7 +160,46 @@ function load_mailbox(mailbox) {
 
           .then(response => response.json())
           .then(email_detail => {
+
             
+            //mete bouton achive ak dezaktive si se pa yon mail yo voye
+            let archiveButton = '';
+            if (mailbox !== 'sent') {
+              if (!email_detail.archived) {
+                archiveButton = `<button id="archive-btn" class="btn btn-sm btn-outline-secondary">Archiver</button>`;
+              } else {
+                archiveButton = `<button id="unarchive-btn" class="btn btn-sm btn-outline-secondary">Désarchiver</button>`;
+              }
+            }
+            
+            //afiche kontni email + bouton
+            
+            document.querySelector('#email-detail-view').innerHTML = `
+              <div style="border:1px solid #ccc; padding:15px; border-radius:5px;">
+                <strong>De :</strong> ${email_detail.sender}<br>
+                <strong>À :</strong> ${email_detail.recipients.join(', ')}<br>
+                <strong>Sujet :</strong> ${email_detail.subject}<br>
+                <strong>Date :</strong> ${email_detail.timestamp}<br>
+                <hr>
+                <p>${email_detail.body}</p>
+                ${archiveButton}
+              </div>
+            `;
+             
+            //ajoute jesyone evenman
+            if (mailbox !== 'sent') {
+                const btn = document.querySelector('#archive-btn') || document.querySelector('#unarchive-btn');
+                if (btn) {
+                  btn.addEventListener('click', function() {
+                    fetch(`/emails/${email_detail.id}`, {
+                      method: 'PUT',
+                      body: JSON.stringify({ archived: !email_detail.archived })
+                    })
+                    .then(() => load_mailbox('inbox'));
+                  });
+                }
+              }
+             
 
             //Afiche vue pou email lan
             document.querySelector('#email-detail-view').innerHTML = `
