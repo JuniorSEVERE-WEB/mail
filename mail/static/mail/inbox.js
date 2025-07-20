@@ -189,6 +189,8 @@ function load_mailbox(mailbox) {
             let replyButton = `<button id="reply-btn" class="btn btn-sm btn-outline-primary">Répondre</button>`;
 
             document.querySelector('#email-detail-view').innerHTML = `
+              
+
               <div style="border:1px solid #ccc; padding:15px; border-radius:5px;">
                 <strong>De :</strong> ${email_detail.sender}<br>
                 <strong>À :</strong> ${email_detail.recipients.join(', ')}<br>
@@ -200,6 +202,8 @@ function load_mailbox(mailbox) {
                 ${replyButton}
               </div>
             `;
+
+
             
 
             document.querySelector('#reply-btn').addEventListener('click', function() {
@@ -210,7 +214,8 @@ function load_mailbox(mailbox) {
             document.querySelector('#compose-recipients').value = email_detail.sender;
             let subject = email_detail.subject.startsWith('Re:') ? email_detail.subject : `Re: ${email_detail.subject}`;
             document.querySelector('#compose-subject').value = subject;
-            document.querySelector('#compose-body').value = `\n\nLe ${email_detail.timestamp}, ${email_detail.sender} a écrit :\n${email_detail.body}`;
+            document.querySelector('#compose-body').value =
+  `\n\nOn ${email_detail.timestamp}, ${email_detail.sender} wrote:\n${email_detail.body}`;
           });
              
             //ajoute jesyone evenman
