@@ -184,9 +184,10 @@ function load_mailbox(mailbox) {
                 archiveButton = `<button id="unarchive-btn" class="btn btn-sm btn-outline-secondary">Désarchiver</button>`;
               }
             }
+
             
-            //afiche kontni email + bouton
-            
+            let replyButton = `<button id="reply-btn" class="btn btn-sm btn-outline-primary">Répondre</button>`;
+
             document.querySelector('#email-detail-view').innerHTML = `
               <div style="border:1px solid #ccc; padding:15px; border-radius:5px;">
                 <strong>De :</strong> ${email_detail.sender}<br>
@@ -196,8 +197,21 @@ function load_mailbox(mailbox) {
                 <hr>
                 <p>${email_detail.body}</p>
                 ${archiveButton}
+                ${replyButton}
               </div>
             `;
+            
+
+            document.querySelector('#reply-btn').addEventListener('click', function() {
+            document.querySelector('#emails-view').style.display = 'none';
+            document.querySelector('#compose-view').style.display = 'block';
+            document.querySelector('#email-detail-view').style.display = 'none';
+
+            document.querySelector('#compose-recipients').value = email_detail.sender;
+            let subject = email_detail.subject.startsWith('Re:') ? email_detail.subject : `Re: ${email_detail.subject}`;
+            document.querySelector('#compose-subject').value = subject;
+            document.querySelector('#compose-body').value = `\n\nLe ${email_detail.timestamp}, ${email_detail.sender} a écrit :\n${email_detail.body}`;
+          });
              
             //ajoute jesyone evenman
             if (mailbox !== 'sent') {
@@ -213,20 +227,7 @@ function load_mailbox(mailbox) {
                 }
               }
              
-
-            //Afiche vue pou email lan
-            document.querySelector('#email-detail-view').innerHTML = `
-              <div style="border:1px solid #ccc;            padding:15px; border-radius:5px;">
-                <strong>De :</strong> ${email_detail.sender}<br>
-
-                <strong>À :</strong>     ${email_detail.recipients.join(', ')}<br>
-                <strong>Sujet :</strong> ${email_detail.subject}<br>
-
-                <strong>Date :</strong> ${email_detail.timestamp}   <br>
-                <hr>
-                <p>${email_detail.body}</p>
-              </div>
-            `;
+        
           });
         });
 
