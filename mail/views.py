@@ -2,16 +2,16 @@ import json
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.http import JsonResponse
-from django.shortcuts import HttpResponse, HttpResponseRedirect, render
+from django.http import JsonResponse, HttpResponse
+from django.shortcuts import HttpResponseRedirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
 
 from .models import User, Email
 
 
 def index(request):
-    # Authenticated users view their inbox
     if request.user.is_authenticated:
         return render(request, "mail/inbox.html")
     else:
@@ -21,42 +21,50 @@ def index(request):
 @csrf_exempt
 @login_required
 def compose(request):
-    # Composing a new email must be via POST
+    """
+    Accept POST JSON {recipients, subject, body}
+    - Accept duplicate User rows by taking the first matching User for a given email.
+    - Return 400 if any recipient email does not exist.
+    """
     if request.method != "POST":
         return JsonResponse({"error": "POST request required."}, status=400)
 
-    # Parse request data
-    data = json.loads(request.body)
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON."}, status=400)
+
     recipients_field = data.get("recipients", "")
-    emails = [email.strip() for email in recipients_field.split(",") if email.strip()]
-    if not emails:
+    recipients_emails = [e.strip() for e in recipients_field.split(",") if e.strip()]
+    if not recipients_emails:
         return JsonResponse({"error": "At least one recipient required."}, status=400)
 
-    # Convert email addresses to User instances, validating duplicates/missing
     recipients = []
-    for addr in emails:
+    for addr in recipients_emails:
         users_qs = User.objects.filter(email=addr)
         if users_qs.count() == 0:
             return JsonResponse({"error": f"User with email {addr} does not exist."}, status=400)
-        if users_qs.count() > 1:
-            return JsonResponse({"error": f"Multiple users with email {addr}. Ask admin to remove duplicates."}, status=400)
+        # If multiple users share same email, choose the first (workaround).
+        # Admin should remove duplicates for data integrity.
         recipients.append(users_qs.first())
 
-    # Get contents of email
     subject = data.get("subject", "")
     body = data.get("body", "")
 
-    # Create one Email object per involved user (sender + each recipient as owner copy)
+    # Create one Email object per involved user (owner/recipient copies)
     users_set = set()
     users_set.add(request.user)
     users_set.update(recipients)
+
     for user in users_set:
         email_obj = Email(
             user=user,
             sender=request.user,
             subject=subject,
             body=body,
-            read=(user == request.user)
+            timestamp=timezone.now(),
+            read=(user == request.user),
+            archived=False
         )
         email_obj.save()
         for recipient in recipients:
@@ -68,17 +76,21 @@ def compose(request):
 
 @login_required
 def mailbox(request, mailbox):
-    # Filter emails returned based on mailbox
+    """
+    Return emails for the logged-in user for the given mailbox:
+      - inbox: user is owner and is recipient and archived=False
+      - sent: user is owner and sender=request.user
+      - archive: any Email owned by user with archived=True
+    """
     if mailbox == "inbox":
         emails = Email.objects.filter(user=request.user, recipients=request.user, archived=False)
     elif mailbox == "sent":
         emails = Email.objects.filter(user=request.user, sender=request.user)
     elif mailbox == "archive":
-        emails = Email.objects.filter(user=request.user, recipients=request.user, archived=True)
+        emails = Email.objects.filter(user=request.user, archived=True)
     else:
         return JsonResponse({"error": "Invalid mailbox."}, status=400)
 
-    # Return emails in reverse chronological order
     emails = emails.order_by("-timestamp").all()
     return JsonResponse([email.serialize() for email in emails], safe=False)
 
@@ -86,19 +98,24 @@ def mailbox(request, mailbox):
 @csrf_exempt
 @login_required
 def email(request, email_id):
-    # Query for requested email
+    """
+    GET: return email detail for the email owned by the logged-in user
+    PUT: accept JSON {read?, archived?} to update flags
+    """
     try:
         email = Email.objects.get(user=request.user, pk=email_id)
     except Email.DoesNotExist:
         return JsonResponse({"error": "Email not found."}, status=404)
 
-    # Return email contents
     if request.method == "GET":
         return JsonResponse(email.serialize())
 
-    # Update whether email is read or should be archived
     elif request.method == "PUT":
-        data = json.loads(request.body)
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON."}, status=400)
+
         if data.get("read") is not None:
             email.read = data["read"]
         if data.get("archived") is not None:
@@ -140,7 +157,7 @@ def register(request):
         try:
             user = User.objects.create_user(email, email, password)
             user.save()
-        except IntegrityError as e:
+        except IntegrityError:
             return render(request, "mail/register.html", {"message": "Email address already taken."})
         login(request, user)
         return HttpResponseRedirect(reverse("index"))
