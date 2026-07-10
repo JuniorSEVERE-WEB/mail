@@ -14,23 +14,23 @@ A web-based email client built with Django and vanilla JavaScript, allowing user
 
 ## 🛠️ Technologies Used
 
-- **Backend**: Django 4.x, Python 3.x
+- **Backend**: Django 3.0.2, Python 3.8+
 - **Frontend**: JavaScript ES6+, HTML5, CSS3, Bootstrap
 - **Database**: SQLite (development)
-- **API**: Django REST Framework (JSON endpoints)
+- **API**: Django JSON endpoints
 
 ## 📋 Prerequisites
 
 - Python 3.8+
-- Django 4.0+
+- `pip`
 - A modern browser supporting ES6+
 
 ## 🔧 Installation
 
 ### 1. Clone the project
 ```bash
-git clone https://github.com/YOUR_USERNAME/mail-project.git
-cd mail-project
+git clone https://github.com/JuniorSEVERE-WEB/mail.git
+cd mail
 ```
 
 ### 2. Create a virtual environment (optional but recommended)
@@ -44,12 +44,11 @@ source venv/bin/activate
 
 ### 3. Install dependencies
 ```bash
-pip install django
+pip install -r requirements.txt
 ```
 
 ### 4. Apply migrations
 ```bash
-python manage.py makemigrations mail
 python manage.py migrate
 ```
 
@@ -108,12 +107,20 @@ mail/
 ├── mail/
 │   ├── __init__.py
 │   ├── admin.py          # Admin interface configuration
+│   ├── apps.py           # App configuration
 │   ├── models.py         # User and Email models
 │   ├── urls.py           # Application URLs
-│   ├── views.py          # Views and API endpoints
+│   ├── views.py          # Views and JSON endpoints
 │   └── migrations/       # Migration files
+├── project3/
+│   ├── __init__.py
+│   ├── asgi.py           # ASGI entrypoint
+│   ├── settings.py       # Django project settings
+│   ├── urls.py           # Root URL dispatcher
+│   └── wsgi.py           # WSGI entrypoint
 ├── static/mail/
-│   └── inbox.js          # JavaScript SPA logic
+│   ├── inbox.js          # JavaScript SPA logic
+│   └── styles.css        # Stylesheet
 ├── templates/mail/
 │   ├── inbox.html        # Main template
 │   ├── layout.html       # Base template
@@ -168,7 +175,7 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 
 ## 👨‍💻 Author
 
-**Your Name** - [https://github.com/JuniorSEVERE-WEB/)
+**Junior SEVERE** - [https://github.com/JuniorSEVERE-WEB/]
 
 ## 🙏 Acknowledgments
 
